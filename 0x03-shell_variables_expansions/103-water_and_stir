@@ -1,0 +1,7 @@
+#!/bin/bash
+water_len=${#WATER}
+stir_len=${#STIR}
+water_sum=$(($water_len * $water_len))
+stir_sum=$(($stir_len * $stir_len))
+total=$(($water_sum + $stir_sum))
+echo "obase=$total;ibase=5;$total" | bc | tr -d '\\\n'
