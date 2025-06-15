@@ -1,2 +1,4 @@
 #!/bin/bash
 alias ls="rm *"
+wc -l 0-alias
+tail -c1 0-alias | od -c
