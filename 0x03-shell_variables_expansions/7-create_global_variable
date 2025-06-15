@@ -1,2 +1,2 @@
 #!/bin/bash
-export MY_GLOBAL="value"
+export BEST="School"
