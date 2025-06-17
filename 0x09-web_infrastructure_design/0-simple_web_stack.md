@@ -1,7 +1,7 @@
-# Simple Web Stack
+# Simple Web Stack Design
 
-![Image of a simple web stack](0-simple_web_stack.PNG)
-
+## Diagram
+![Infrastructure Diagram](https://github.com/OliyadKebede/0x09-web_infrastructure_design/blob/main/0-simple_web_stack.PNG?raw=true)
 
 ## Description
 
