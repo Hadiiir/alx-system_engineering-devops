@@ -1,8 +1,7 @@
 # Distributed Web Infrastructure
 
-![Distributed Web Infrastructure Diagram](1-distributed_web_infrastructure.PNG)
+![Distributed Web Infrastructure Diagram](https://github.com/OliyadKebede/0x09-web_infrastructure_design/blob/main/1-distributed_web_infrastructure.PNG?raw=true)
 
-[Visit Board](https://miro.com/app/board/uXjVOfI6jcU=/)
 
 ## Description
 
