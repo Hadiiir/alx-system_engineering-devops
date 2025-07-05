@@ -1,18 +1,20 @@
 #!/usr/bin/env bash
-# Installs nginx web server
+# Installs and configures nginx web server to serve 'Hello World!'
 
-# Update package list and install nginx
+# Update package lists
 sudo apt-get -y update
+
+# Install nginx non-interactively
 sudo apt-get -y install nginx
 
-# Start nginx without using systemctl
+# Ensure nginx is running and enabled
 sudo service nginx start
 
-# Configure firewall
+# Open port 80 in firewall
 sudo ufw allow 'Nginx HTTP'
 
-# Create index.html with Hello World!
+# Create the default HTML file with Hello World message
 echo 'Hello World!' | sudo tee /var/www/html/index.nginx-debian.html >/dev/null
 
-# Restart nginx without using systemctl
+# Restart nginx to apply changes
 sudo service nginx restart
