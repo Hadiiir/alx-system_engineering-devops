@@ -1,33 +1,22 @@
 #!/usr/bin/env bash
-# Configures Nginx server with custom X-Served-By header
+# Script that configures Nginx server with a custom header
+# shellcheck disable=SC2154
 
-# Update package list and install Nginx
-sudo apt-get -y update
-sudo apt-get -y install nginx
+# Update package list and install nginx
+apt-get -y update
+apt-get -y install nginx
 
 # Create basic index page
-echo "Hello World!" | sudo tee /var/www/html/index.html > /dev/null
+echo "Hello World!" > /var/www/html/index.nginx-debian.html
 
-# Configure custom header in Nginx
-sudo tee /etc/nginx/conf.d/custom_header.conf > /dev/null <<EOF
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-    
-    root /var/www/html;
-    index index.html index.htm;
-    
-    server_name _;
-    
-    location / {
-        add_header X-Served-By \$hostname;
-        try_files \$uri \$uri/ =404;
-    }
-}
-EOF
+# Create custom 404 page
+echo "Ceci n'est pas une page" > /usr/share/nginx/html/custom_404.html
 
-# Remove default site if exists
-sudo rm -f /etc/nginx/sites-enabled/default
+# Configure the default site with redirect and custom 404
+sed -i '/server_name _;/a\\n\t# Redirect /redirect_me to GitHub\n\trewrite ^/redirect_me https://github.com/Tolulope05 permanent;\n\n\t# Custom 404 page\n\terror_page 404 /custom_404.html;\n\tlocation = /custom_404.html {\n\t\troot /usr/share/nginx/html;\n\t\tinternal;\n\t}' /etc/nginx/sites-available/default
 
-# Test configuration and restart Nginx
-sudo nginx -t && sudo systemctl restart nginx
+# Add custom header to the server block
+sed -i '/server_name _;/a\\n\t# Add custom header with hostname\n\tadd_header X-Served-By $hostname;' /etc/nginx/sites-available/default
+
+# Start nginx service
+service nginx start
