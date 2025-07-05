@@ -1,28 +1,18 @@
-#!/bin/bash
-# This script installs and configures Nginx web server
+#!/usr/bin/env bash
+# Installs nginx web server
 
-# Install Nginx with automatic yes to prompts
-apt-get update
-apt-get install -y nginx
+# Update package list and install nginx
+sudo apt-get -y update
+sudo apt-get -y install nginx
 
-# Configure Nginx to serve "Hello World!" on port 80
-cat > /var/www/html/index.nginx-debian.html <<EOF
-<!DOCTYPE html>
-<html>
-<head>
-<title>Hello World!</title>
-</head>
-<body>
-<h1>Hello World!</h1>
-</body>
-</html>
-EOF
+# Start nginx without using systemctl
+sudo service nginx start
 
-# Ensure Nginx is configured to listen on port 80
-sed -i 's/listen \[::\]:80 default_server;/listen \[::\]:80;/' /etc/nginx/sites-enabled/default
+# Configure firewall
+sudo ufw allow 'Nginx HTTP'
 
-# Restart Nginx without using systemctl
-service nginx restart
+# Create index.html with Hello World!
+echo 'Hello World!' | sudo tee /var/www/html/index.nginx-debian.html >/dev/null
 
-# Verify Nginx is running on port 80
-netstat -tulnp | grep ':80'
+# Restart nginx without using systemctl
+sudo service nginx restart
