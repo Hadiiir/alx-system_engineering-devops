@@ -1,22 +1,8 @@
-#!/usr/bin/env bash
-# Configure UFW to block all incoming traffic except SSH, HTTP, HTTPS
-
-# Reset UFW to default settings
-sudo ufw --force reset
-
-# Deny all incoming traffic by default
-sudo ufw default deny incoming
-
-# Allow outgoing traffic
-sudo ufw default allow outgoing
-
-# Allow specific ports
-sudo ufw allow 22/tcp   # SSH
-sudo ufw allow 80/tcp   # HTTP
-sudo ufw allow 443/tcp  # HTTPS
-
-# Enable UFW
-sudo ufw --force enable
-
-# Show configured rules
-sudo ufw status numbered
+sudo apt-get install ufw
+sudo ufw status
+sudo ufw enable -y
+sudo ufw default deny incoming -y
+sudo ufw default allow outgoing -y
+sudo ufw allow 22/tcp
+sudo ufw allow 443/tcp
+sudo ufw allow 80/tcp
