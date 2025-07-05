@@ -1,23 +1,22 @@
-echo -e "Updating\n"
+#!/usr/bin/env bash
+# Configure UFW to block all incoming traffic except SSH, HTTP, HTTPS
 
-sudo apt-get update
+# Reset UFW to default settings
+sudo ufw --force reset
 
-echo -e "Installing UFW\n"
-
-sudo apt-get install -y ufw
-
-echo -e "configuring UFW...\n"
-
-# Allow Outgoing and Deny Incoming
+# Deny all incoming traffic by default
 sudo ufw default deny incoming
+
+# Allow outgoing traffic
 sudo ufw default allow outgoing
 
-# Allow ports
-sudo ufw allow 22
-sudo ufw allow 80
-sudo ufw allow 443
+# Allow specific ports
+sudo ufw allow 22/tcp   # SSH
+sudo ufw allow 80/tcp   # HTTP
+sudo ufw allow 443/tcp  # HTTPS
 
-# Enable Fire Wall
-sudo ufw enable
+# Enable UFW
+sudo ufw --force enable
 
-echo -e "Process Completed.\n"
+# Show configured rules
+sudo ufw status numbered
