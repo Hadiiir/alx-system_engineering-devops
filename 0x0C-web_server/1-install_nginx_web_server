@@ -1,41 +1,17 @@
 #!/usr/bin/env bash
-# Installs and configures nginx web server to serve 'Hello World!'
+# Installs and configures nginx to display "Hello World!" at the root URL
 
-# Update package lists
-sudo apt-get -y update
+# Update and install nginx
+apt-get update -y
+apt-get install -y nginx
 
-# Install nginx non-interactively
-sudo apt-get -y install nginx
+# Start nginx using service (not systemctl)
+service nginx start
 
-# Create proper HTML file in correct location
-sudo mkdir -p /var/www/html
-echo 'Hello World!' | sudo tee /var/www/html/index.html >/dev/null
+# Write "Hello World!" to the index file
+echo "Hello World!" > /var/www/html/index.html
 
-# Configure Nginx to serve from correct root
-sudo bash -c 'cat > /etc/nginx/sites-available/default <<EOF
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-    root /var/www/html;
-    index index.html;
-    server_name _;
-    location / {
-        try_files \$uri \$uri/ =404;
-    }
-}
-EOF'
-
-# Ensure proper permissions
-sudo chown -R www-data:www-data /var/www/html
-sudo chmod -R 755 /var/www/html
-
-# Configure firewall
-echo "y" | sudo ufw enable
-sudo ufw allow 'Nginx HTTP'
-
-# Restart and enable Nginx
-sudo systemctl restart nginx
-sudo systemctl enable nginx
-
-# Verify installation by outputting HTTP status code
-curl -s -o /dev/null -w "%{http_code}" http://localhost
+# Ensure port 80 is open (if ufw is installed and active)
+if command -v ufw >/dev/null 2>&1; then
+  ufw allow 'Nginx HTTP'
+fi
