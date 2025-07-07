@@ -1,20 +1,46 @@
 #!/usr/bin/env bash
-# Installs and configures nginx web server to serve 'Hello World!'
+# Configures Nginx web server with 'Hello World!' page
 
 # Update package lists
-sudo apt-get -y update
+sudo apt-get update -y
 
-# Install nginx non-interactively
-sudo apt-get -y install nginx
+# Install Nginx non-interactively
+sudo apt-get install nginx -y
 
-# Ensure nginx is running and enabled
-sudo service nginx start
+# Create web directory if it doesn't exist
+sudo mkdir -p /var/www/html
 
-# Open port 80 in firewall
+# Create index.html with Hello World message
+echo "Hello World!" | sudo tee /var/www/html/index.html >/dev/null
+
+# Configure Nginx to serve from correct directory
+sudo bash -c 'cat > /etc/nginx/sites-available/default <<EOF
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    root /var/www/html;
+    index index.html;
+    server_name _;
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+}
+EOF'
+
+# Ensure proper permissions
+sudo chown -R www-data:www-data /var/www/html
+sudo chmod -R 755 /var/www/html
+
+# Enable firewall and allow HTTP
+echo "y" | sudo ufw enable
 sudo ufw allow 'Nginx HTTP'
 
-# Create the default HTML file with Hello World message
-echo 'Hello World!' | sudo tee /var/www/html/index.nginx-debian.html >/dev/null
+# Restart Nginx to apply changes
+sudo systemctl restart nginx
 
-# Restart nginx to apply changes
-sudo service nginx restart
+# Verify Nginx is running
+sudo systemctl enable nginx
+sudo systemctl start nginx
+
+# Verify the output
+curl -s localhost
