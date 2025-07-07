@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
-# Configures Nginx web server to serve 'Hello World' on port 80
+# Installs and configures nginx web server to serve 'Hello World!'
 
 # Update package lists
-sudo apt-get update -y
+sudo apt-get -y update
 
-# Install Nginx
-sudo apt-get install nginx -y
+# Install nginx non-interactively
+sudo apt-get -y install nginx
 
-# Configure default site
-sudo tee /etc/nginx/sites-available/default <<EOF
+# Create proper HTML file in correct location
+sudo mkdir -p /var/www/html
+echo 'Hello World!' | sudo tee /var/www/html/index.html >/dev/null
+
+# Configure Nginx to serve from correct root
+sudo bash -c 'cat > /etc/nginx/sites-available/default <<EOF
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
@@ -19,22 +23,19 @@ server {
         try_files \$uri \$uri/ =404;
     }
 }
-EOF
+EOF'
 
-# Create HTML content
-sudo mkdir -p /var/www/html
-echo "Hello World!" | sudo tee /var/www/html/index.html >/dev/null
-
-# Set permissions
+# Ensure proper permissions
 sudo chown -R www-data:www-data /var/www/html
 sudo chmod -R 755 /var/www/html
 
-# Enable and restart Nginx
-sudo systemctl enable nginx
-sudo systemctl restart nginx
-
-# Allow HTTP traffic
+# Configure firewall
+echo "y" | sudo ufw enable
 sudo ufw allow 'Nginx HTTP'
 
-# Verify installation
-curl -s localhost
+# Restart and enable Nginx
+sudo systemctl restart nginx
+sudo systemctl enable nginx
+
+# Verify installation by outputting HTTP status code
+curl -s -o /dev/null -w "%{http_code}" http://localhost
