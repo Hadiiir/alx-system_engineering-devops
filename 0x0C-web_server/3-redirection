@@ -1,27 +1,46 @@
 #!/usr/bin/env bash
-# Configure a new Nginx server so that /redirect_me is redirecting to another page with a 301 Moved Permanently
+# Configure a new Nginx server to redirect /redirect_me with 301 Moved Permanently
 
+# Update and install Nginx
 sudo apt-get -y update
 sudo apt-get -y install nginx
 
-sudo service nginx start
-sudo ufw allow 'Nginx HTTP'
+# Create web directory and default page
+sudo mkdir -p /var/www/html
+echo 'Hello World!' | sudo tee /var/www/html/index.html >/dev/null
 
-sudo chown -R "$USER":"$USER" /var/www/html
-sudo chmod -R 777 /var/www -R
-
-echo 'Hello World!' > /var/www/html/index.nginx-debian.html
-
-printf %s "server {
-    listen 80;
+# Configure Nginx with redirect
+sudo tee /etc/nginx/sites-available/default >/dev/null <<EOF
+server {
+    listen 80 default_server;
     listen [::]:80 default_server;
-
-    root   /etc/nginx/html;
-    index  index.html index.htm;
-
+    
+    root /var/www/html;
+    index index.html index.htm;
+    
+    server_name _;
+    
     location /redirect_me {
         return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
     }
-}" > /etc/nginx/sites-available/default
+    
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+}
+EOF
 
-sudo service nginx restart
+# Set proper permissions
+sudo chown -R www-data:www-data /var/www/html
+sudo chmod -R 755 /var/www/html
+
+# Enable firewall and Nginx
+echo "y" | sudo ufw enable
+sudo ufw allow 'Nginx HTTP'
+
+# Restart Nginx
+sudo systemctl restart nginx
+sudo systemctl enable nginx
+
+# Verify the redirect returns 301
+curl -sI http://localhost/redirect_me | grep HTTP | awk '{print $2}'
