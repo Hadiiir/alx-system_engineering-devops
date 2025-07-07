@@ -1,9 +1,39 @@
 #!/usr/bin/env bash
-# Transfers a file from Holberton's client to another.
+# Transfers a file from client to server using SCP
 
-if [ $# -lt 4 ]
-then
-  echo "Usage: 0-transfer_file PATH_TO_FILE IP USERNAME PATH_TO_SSH_KEY"
+if [ $# -lt 4 ]; then
+  echo "Usage: transfer_file PATH_TO_FILE IP USERNAME PATH_TO_SSH_KEY"
+  exit 1
+fi
+
+PATH_TO_FILE="$1"
+IP="$2"
+USERNAME="$3"
+SSH_KEY="$4"
+
+# Check if source file exists
+if [ ! -f "$PATH_TO_FILE" ]; then
+  echo "Error: File $PATH_TO_FILE does not exist or is not a regular file"
+  exit 1
+fi
+
+# Check if SSH key exists and has correct permissions
+if [ ! -f "$SSH_KEY" ]; then
+  echo "Error: SSH key $SSH_KEY does not exist"
+  exit 1
+fi
+
+# Set strict permissions for the key (recommended by SSH)
+chmod 600 "$SSH_KEY" 2>/dev/null
+
+# Perform the file transfer
+echo "Transferring $PATH_TO_FILE to $USERNAME@$IP..."
+scp -o StrictHostKeyChecking=no -o ConnectTimeout=5 -i "$SSH_KEY" "$PATH_TO_FILE" "$USERNAME@$IP":~
+
+# Check if transfer was successful
+if [ $? -eq 0 ]; then
+  echo "Transfer completed successfully"
 else
-  scp -o StrictHostKeyChecking=no -i "$4" "$1" "$3@$2":~
+  echo "Error: File transfer failed"
+  exit 1
 fi
