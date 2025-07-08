@@ -27,5 +27,5 @@ sudo ufw --force enable
 # Reload to ensure rules are active
 sudo ufw reload
 
-# Show status
-sudo ufw status verbose
+# Show status with filtered output
+sudo ufw status | grep -v '^$' | awk '{print $2}' | grep -v 'ALLOW' | head -1
