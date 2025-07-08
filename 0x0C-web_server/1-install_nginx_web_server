@@ -1,23 +1,10 @@
 #!/usr/bin/env bash
-# Installs and configures nginx to display "Hello World!" at the root URL
+# Install nginx on web server; Nginx should be listening on port 80
+# Querying Nginx at its root (/) with a GET request (requesting a page)
+# 	   curl http://35.229.54.225/   --> returns string "Holberton School"
+#	   curl http://35.229.54.225/   --> returns header info
 
-# Exit if not root
-if [ "$EUID" -ne 0 ]; then
-  echo "ERROR: You need to be root to run this script"
-  exit 1
-fi
-
-# Update and install nginx
-apt-get update -y
-apt-get install -y nginx
-
-# Start nginx using service (not systemctl)
-service nginx start
-
-# Write "Hello World!" to the index file
-echo "Hello World!" > /var/www/html/index.html
-
-# Ensure port 80 is open (if ufw is installed and active)
-if command -v ufw >/dev/null 2>&1; then
-  ufw allow 'Nginx HTTP'
-fi
+sudo apt-get -y update
+sudo apt-get -y install nginx
+echo "Holberton School" | sudo tee /usr/share/nginx/html/index.html
+sudo service nginx start
