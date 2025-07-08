@@ -1,30 +1,32 @@
-
 #!/usr/bin/env bash
-# Configures UFW firewall to allow SSH (22), HTTP (80), HTTPS (443) and deny all else.
+# Configure ufw firewall to block all incoming traffic except SSH (22), HTTP (80), and HTTPS (443)
 
-# Install UFW (if not already installed)
-sudo apt-get update -y
+# Ensure UFW is installed
+sudo apt-get update
 sudo apt-get install -y ufw
 
-# Enable IPv6 support
-sudo sed -i "s/IPV6=no/IPV6=yes/" /etc/default/ufw
+# Stop UFW if running
+sudo ufw disable
 
-# Set default policies (deny incoming, allow outgoing)
+# Reset to default state
+sudo ufw --force reset
+
+# Set default policies explicitly
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
 
-# Allow necessary ports (SSH, HTTP, HTTPS)
-sudo ufw allow 22/tcp   # SSH
-sudo ufw allow 80/tcp   # HTTP
-sudo ufw allow 443/tcp  # HTTPS
+# Allow specific ports
+sudo ufw allow in 22/tcp
+sudo ufw allow in 80/tcp  
+sudo ufw allow in 443/tcp
 
-# Enable UFW (non-interactively)
-echo "y" | sudo ufw enable
+# Enable UFW
+sudo ufw --force enable
 
-# Explicitly check if ports are filtered (required for the test)
-if sudo ufw status | grep -q "22/tcp.*ALLOW" && \
-   sudo ufw status | grep -q "80/tcp.*ALLOW" && \
-   sudo ufw status | grep -q "443/tcp.*ALLOW"; then
-    echo "filtered"  # This makes the test pass
-fi
+# Wait a moment for rules to apply
+sleep 2
 
+# Verify the firewall is active
+sudo ufw status numbered
+echo "UFW Status:"
+sudo ufw status verbose
