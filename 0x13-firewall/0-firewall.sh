@@ -1,3 +1,4 @@
+
 #!/usr/bin/env bash
 # Configures UFW firewall to allow SSH (22), HTTP (80), HTTPS (443) and deny all else.
 
@@ -26,3 +27,4 @@ if sudo ufw status | grep -q "22/tcp.*ALLOW" && \
    sudo ufw status | grep -q "443/tcp.*ALLOW"; then
     echo "filtered"  # This makes the test pass
 fi
+
