@@ -1,23 +1,41 @@
 #!/usr/bin/env bash
-# Installs and setup haproxy
+# Installs and configures HAProxy to load balance between web-01 and web-02 using roundrobin
 
-apt-get install -y software-properties-common
-add-apt-repository -y ppa:vbernat/haproxy-1.8
-apt-get -y update
-apt-get install -y haproxy=1.8.\*
+# Update and install HAProxy
+apt-get update -y
+apt-get install -y haproxy
 
+# Enable HAProxy via default config
 echo "ENABLED=1" > /etc/default/haproxy
 
-# Listen to web1 and web2 servers                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-echo "
-   listen load_balancer
-   bind *:80
-   mode http
-   balance roundrobin
-   option httpclose
-   option forwardfor
-   server 17272-web-01 44.200.83.158:80 check
-   server 17272-web-02 3.237.16.226:80 check
-" >> /etc/haproxy/haproxy.cfg
+# Backup original config file
+cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
 
-service haproxy start
+# Configure HAProxy (replace with your actual IPs)
+cat <<EOF > /etc/haproxy/haproxy.cfg
+global
+    log /dev/log    local0
+    log /dev/log    local1 notice
+    daemon
+
+defaults
+    log     global
+    mode    http
+    option  httplog
+    option  dontlognull
+    timeout connect 5000
+    timeout client  50000
+    timeout server  50000
+
+listen http_front
+    bind *:80
+    mode http
+    option httpclose
+    option forwardfor
+    balance roundrobin
+    server 03-web-01 44.200.83.158:80 check
+    server 03-web-02 3.237.16.226:80 check
+EOF
+
+# Restart HAProxy
+systemctl restart haproxy
