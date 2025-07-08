@@ -1,5 +1,3 @@
-#!/bin/bash
-# Prints "hello [current_user]"
 
-current_user=$(whoami)
-echo "hello $current_user"
+#!/bin/bash
+echo "hello $(whoami)"
