@@ -1,17 +1,28 @@
 #!/usr/bin/env bash
-# Script that configures Nginx server with a custom header
+# Script that configures Nginx with a custom HTTP header X-Served-By
+
 # shellcheck disable=SC2154
 
-# Update package list and install nginx
-apt-get -y update
-apt-get -y install nginx
+# Update package list and install nginx if not already installed
+apt-get update -y
+apt-get install -y nginx
 
-# Create basic index page
-echo "Hello World!" > /var/www/html/index.nginx-debian.html
+# Ensure Nginx is enabled and started
+systemctl enable nginx
+systemctl start nginx
 
-# Add custom header to nginx configuration
-sed -i "/server_name _;/a\\        add_header X-Served-By \$hostname;" /etc/nginx/sites-available/default
+# Set the hostname to match convention (replace YOUR_ID)
+if hostname | grep -qv "YOUR_ID"; then
+  hostnamectl set-hostname YOUR_ID-web-01
+fi
 
-# Test nginx configuration and restart
-nginx -t
-service nginx restart
+# Add custom header to default server config
+CONFIG_FILE="/etc/nginx/sites-available/default"
+
+# Only add header if not already present
+if ! grep -q "X-Served-By" "$CONFIG_FILE"; then
+  sed -i "/server_name _;/a \\\tadd_header X-Served-By \$hostname;" "$CONFIG_FILE"
+fi
+
+# Test and reload nginx
+nginx -t && systemctl reload nginx
