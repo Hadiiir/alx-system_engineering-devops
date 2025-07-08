@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Installs and configures HAProxy to load balance between web-01 and web-02 using roundrobin
 
+# shellcheck disable=SC2154
+
 # Update and install HAProxy
 apt-get update -y
 apt-get install -y haproxy
@@ -11,12 +13,13 @@ echo "ENABLED=1" > /etc/default/haproxy
 # Backup original config file
 cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
 
-# Configure HAProxy (replace with your actual IPs)
+# Configure HAProxy with two backend servers (Replace IPs & STUDENT_ID with your actual values)
 cat <<EOF > /etc/haproxy/haproxy.cfg
 global
     log /dev/log    local0
     log /dev/log    local1 notice
     daemon
+    maxconn 256
 
 defaults
     log     global
@@ -27,15 +30,15 @@ defaults
     timeout client  50000
     timeout server  50000
 
-listen http_front
+frontend http_front
     bind *:80
-    mode http
-    option httpclose
-    option forwardfor
+    default_backend http_back
+
+backend http_back
     balance roundrobin
     server 03-web-01 44.200.83.158:80 check
     server 03-web-02 3.237.16.226:80 check
 EOF
 
-# Restart HAProxy
+# Restart HAProxy service
 systemctl restart haproxy
