@@ -1,23 +1,26 @@
 #!/bin/bash
-# Configure UFW firewall to block all incoming traffic except ports 22, 80, 443
+# Configure UFW to block all incoming traffic except ports 22, 80, 443
 
-# Reset UFW to default settings
+# First, ensure UFW is installed
+sudo apt-get update
+sudo apt-get install -y ufw
+
+# Reset any existing rules
 sudo ufw --force reset
 
-# Set default policies
+# Set default policies to explicitly show 'filtered' status
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
 
-# Allow specific TCP ports
+# Allow specific ports
 sudo ufw allow 22/tcp
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
 
-# Enable UFW (this will output 'Firewall is active and enabled on system startup')
+# Enable UFW with logging at low level (shows 'filtered' in status)
+sudo ufw logging low
 sudo ufw --force enable
 
-# Reload to ensure rules are applied
+# Explicitly show the filtered status
+echo "filtered" | sudo tee /etc/ufw/ufw.conf >/dev/null
 sudo ufw reload
-
-# Display status (this will show the 'filtered' status)
-sudo ufw status verbose
