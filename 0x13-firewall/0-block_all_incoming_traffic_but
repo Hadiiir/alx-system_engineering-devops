@@ -1,16 +1,24 @@
 #!/usr/bin/env bash
-# Installs firewall; block all incoming except 22, 443, 80
+# Configures UFW firewall to allow SSH (22), HTTP (80), HTTPS (443) and deny all else.
 
-# install ufw, support both IPv4 and IPv6, and ensure default values
-sudo apt-get -y install ufw
+# Install UFW (if not already installed)
+sudo apt-get update -y
+sudo apt-get install -y ufw
+
+# Enable IPv6 support
 sudo sed -i "s/IPV6=no/IPV6=yes/" /etc/default/ufw
-sudo ufw default allow outgoing
+
+# Set default policies
 sudo ufw default deny incoming
+sudo ufw default allow outgoing
 
-# configure
-sudo ufw allow ssh
-sudo ufw allow http
-sudo ufw allow https
+# Allow necessary ports
+sudo ufw allow 22/tcp   # SSH
+sudo ufw allow 80/tcp   # HTTP
+sudo ufw allow 443/tcp  # HTTPS
 
-# start
-sudo ufw enable
+# Enable UFW (non-interactively)
+echo "y" | sudo ufw enable
+
+# Display status (for debugging)
+sudo ufw status verbose
