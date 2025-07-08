@@ -1,2 +1,5 @@
 #!/bin/bash
-echo hello $USER
+# Prints "hello [current_user]"
+
+current_user=$(whoami)
+echo "hello $current_user"
