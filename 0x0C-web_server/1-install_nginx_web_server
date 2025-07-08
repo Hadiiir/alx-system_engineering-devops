@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 # Installs and configures nginx to display "Hello World!" at the root URL
 
+# Exit if not root
+if [ "$EUID" -ne 0 ]; then
+  echo "ERROR: You need to be root to run this script"
+  exit 1
+fi
+
 # Update and install nginx
 apt-get update -y
 apt-get install -y nginx
