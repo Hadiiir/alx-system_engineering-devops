@@ -1,6 +1,23 @@
+#!/bin/bash
+# Configure UFW firewall to block all incoming traffic except ports 22, 80, 443
+
+# Reset UFW to default settings
+sudo ufw --force reset
+
+# Set default policies
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
+
+# Allow specific TCP ports
+sudo ufw allow 22/tcp
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
-sudo ufw allow 22/tcp
-sudo ufw enable
+
+# Enable UFW (this will output 'Firewall is active and enabled on system startup')
+sudo ufw --force enable
+
+# Reload to ensure rules are applied
+sudo ufw reload
+
+# Display status (this will show the 'filtered' status)
+sudo ufw status verbose
