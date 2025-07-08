@@ -1,34 +1,26 @@
 #!/usr/bin/env bash
-# configures a new Ubuntu machine
+# Configure server with: Nginx, custom 404, custom 301 redirect to google
+# Add to HTTP header
 
-# Install nginx on web-01 server
-apt-get -y update
-apt-get -y install nginx
+ADD301_REDIRECT="\\\tlocation /redirect_me {\n\t\t return 301 https://google.com;\n\t}\n"
+ADD404_NOTFOUND="error_page 404 /custom_404.html;\n\\tlocation = /custom_404.html {\n\t\t root /usr/share/nginx/html;\n\t\tinternal;\n\t}\n"
+PATTERN="#error_page 404 /404.html;"
+ADD_HEADER="\\\tadd_header X-Served-By $HOSTNAME;"
 
-# Add custom response header to know the server name for debugging
-HOST_NAME=$(hostname)
-HEADER="\\\n\tadd_header X-Served-By $HOST_NAME;\n"
-FIND=$(grep "X-Server-by" /etc/nginx/sites-available/default)
-if [[ -z $FIND ]]; then
-    sed -i "23i $HEADER" /etc/nginx/sites-available/default
-fi
+sudo apt-get update
+sudo apt-get -y install nginx
+sudo service nginx start
 
-# Create a firts index.html page
-echo "Hello World!" > /var/www/html/index.html
+echo "Holberton School" | sudo tee /usr/share/nginx/html/index.html
 
-# Add to the nginx configuration file a redirection to another page
-FIND=$(grep "redirect_me" /etc/nginx/sites-available/default)
-STRING="\\\n\tlocation /redirect_me {\n\t\t return 301 https://www.youtube.com/watch?v=3MbaGJN2ioQ;\n\t}\n"
-if [[ -z $FIND ]]; then
-    sed -i "42i $STRING" /etc/nginx/sites-available/default
-fi
+# melissax.online/redirect_me redirects to google.com (add to line 30)
+sudo sed -i "30i $ADD301_REDIRECT" /etc/nginx/sites-available/default
 
-# Add to the nginx configuration file a error page 404
-FIND=$(grep "error_page 404" /etc/nginx/sites-available/default)
-ERROR="\\\n\terror_page 404 /custom_404.html;\n"
-if [[ -z $FIND ]]; then
-    echo "Ceci n'est pas une page" > /var/www/html/custom_404.html
-    sed -i "40i $ERROR" /etc/nginx/sites-available/default
-fi
+# Any page that errors shows this new custom_404.html page (uncomment and replace code)
+echo "Ceci n'est pas une page" | sudo tee /usr/share/nginx/html/custom_404.html
+sudo sed -i "s@$PATTERN@$ADD404_NOTFOUND@" /etc/nginx/sites-available/default
 
-service nginx restart
+# Header is updated (add_header to file)
+sudo sed -i "27i $ADD_HEADER" /etc/nginx/sites-available/default
+
+sudo service nginx restart

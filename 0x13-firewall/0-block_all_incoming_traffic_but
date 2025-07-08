@@ -1,26 +1,16 @@
-#!/bin/bash
-# Configure UFW to block all incoming traffic except ports 22, 80, 443
+#!/usr/bin/env bash
+# Installs firewall; block all incoming except 22, 443, 80
 
-# First, ensure UFW is installed
-sudo apt-get update
-sudo apt-get install -y ufw
-
-# Reset any existing rules
-sudo ufw --force reset
-
-# Set default policies to explicitly show 'filtered' status
-sudo ufw default deny incoming
+# install ufw, support both IPv4 and IPv6, and ensure default values
+sudo apt-get -y install ufw
+sudo sed -i "s/IPV6=no/IPV6=yes/" /etc/default/ufw
 sudo ufw default allow outgoing
+sudo ufw default deny incoming
 
-# Allow specific ports
-sudo ufw allow 22/tcp
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
+# configure
+sudo ufw allow ssh
+sudo ufw allow http
+sudo ufw allow https
 
-# Enable UFW with logging at low level (shows 'filtered' in status)
-sudo ufw logging low
-sudo ufw --force enable
-
-# Explicitly show the filtered status
-echo "filtered" | sudo tee /etc/ufw/ufw.conf >/dev/null
-sudo ufw reload
+# start
+sudo ufw enable
