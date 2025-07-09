@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Bash script that uses ssh to connect to a server
-# private key ~/.ssh/holberton; user ubuntu; host IP given as 35.229.54.225
+# Connect to ALX server using private key ~/.ssh/school and ubuntu user
 
-ssh -i ~/.ssh/holberton ubuntu@35.229.54.225
+ssh -i ~/.ssh/school ubuntu@3.83.102.47
