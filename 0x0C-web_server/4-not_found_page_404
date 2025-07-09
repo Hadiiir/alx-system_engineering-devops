@@ -1,18 +1,16 @@
 #!/usr/bin/env bash
-# Configure your Nginx server to have a custom 404 page that contains a string
+# Configures Nginx with a custom 404 page that says "Ceci n'est pas une page"
 
-ADD301_REDIRECT="\\\tlocation /redirect_me {\n\t\t return 301 https://google.com;\n\t}\n"
-ADD404_NOTFOUND="error_page 404 /custom_404.html;\n\\tlocation = /custom_404.html {\n\t\t root /usr/share/nginx/html;\n\t\tinternal;\n\t}\n"
-PATTERN="#error_page 404 /404.html;"
+# Step 1: Install nginx
+apt-get update -y
+apt-get install nginx -y
 
-sudo apt-get update
-sudo apt-get -y install nginx
-sudo service nginx start
+# Step 2: Create a custom 404 HTML page
+echo "Ceci n'est pas une page" > /var/www/html/custom_404.html
 
-echo "Holberton School" | sudo tee /usr/share/nginx/html/index.html
-sudo sed -i "30i $ADD301_REDIRECT" /etc/nginx/sites-available/default #add at line 30
+# Step 3: Update nginx config to use this custom 404 page
+sed -i '/error_page 404 \/404.html;/d' /etc/nginx/sites-available/default
+sed -i '/server_name _;/a \ \n    error_page 404 /custom_404.html;\n    location = /custom_404.html {\n        root /var/www/html;\n        internal;\n    }' /etc/nginx/sites-available/default
 
-echo "Ceci n'est pas une page" | sudo tee /usr/share/nginx/html/custom_404.html
-sudo sed -i "s@$PATTERN@$ADD404_NOTFOUND@" /etc/nginx/sites-available/default #uncomment and replace
-
-sudo service nginx restart
+# Step 4: Reload nginx (without using systemctl)
+service nginx restart

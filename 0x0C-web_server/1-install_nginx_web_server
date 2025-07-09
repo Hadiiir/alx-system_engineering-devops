@@ -1,11 +1,24 @@
 #!/usr/bin/env bash
-# This script installs nginx, sets up a custom index, and ensures nginx runs on port 80
+# Installs nginx and sets up a Hello World page
 
-# Update and install nginx
-sudo apt-get update -y && sudo apt-get install nginx -y
+# Install nginx
+apt-get update
+apt-get install -y nginx
 
-# Replace index.html
-echo "Hello World!" | sudo tee /var/www/html/index.html > /dev/null
+# Overwrite the default index.html with Hello World
+echo "Hello World!" > /var/www/html/index.html
 
 # Start nginx using service
-sudo service nginx start
+service nginx start
+#!/usr/bin/env bash
+# Installs nginx and sets up a Hello World page
+
+# Install nginx
+apt-get update
+apt-get install -y nginx
+
+# Overwrite the default index.html with Hello World
+echo "Hello World!" > /var/www/html/index.html
+
+# Start nginx using service (not systemctl)
+service nginx start
