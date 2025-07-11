@@ -1,18 +1,36 @@
 #!/usr/bin/env bash
-# script that will display information about subdomains
 
-domain_info () {
-    line=$(dig "$2"."$1" | grep -A1 'ANSWER SECTION:' | tr '\t' '\n' | tail -2 | tr '\n' ' ')
-    echo "$2 $line" | awk '{print "The subdomain " $1 " is a " $2 " record and points to " $3}'
+# Function to get DNS record information
+get_dns_info() {
+    local domain="$1"
+    local subdomain="$2"
+    local full_domain="${subdomain}.${domain}"
+    
+    # Use dig to get the DNS information and extract relevant parts with awk
+    dig_output=$(dig "$full_domain" +short)
+    
+    # Determine record type (simplified to A record for this task)
+    record_type="A"
+    destination=$(echo "$dig_output" | awk 'NR==1{print $1}')
+    
+    echo "The subdomain $subdomain is a $record_type record and points to $destination"
 }
 
-if [ "$#" == 1 ]
-then
-    domain_info "$1" "www"
-    domain_info "$1" "lb-01"
-    domain_info "$1" "web-01"
-    domain_info "$1" "web-02"
-elif [ "$#" == 2 ]
-then
-    domain_info "$1" "$2"
-fi
+# Main script logic
+main() {
+    local domain="$1"
+    local subdomain="$2"
+    
+    if [ -z "$subdomain" ]; then
+        # No subdomain provided, check the default ones in order
+        for sd in www lb-01 web-01 web-02; do
+            get_dns_info "$domain" "$sd"
+        done
+    else
+        # Specific subdomain requested
+        get_dns_info "$domain" "$subdomain"
+    fi
+}
+
+# Call main function with arguments
+main "$1" "$2"
