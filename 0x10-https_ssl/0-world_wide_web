@@ -1,37 +1,19 @@
 #!/usr/bin/env bash
-# Script to audit domain subdomains and display DNS information
+# Usage: ./1-world_wide_web <domain> <subdomain>
+# Display information about subdomains.
 
-# Function to get subdomain information
-get_subdomain_info() {
-    local domain="$1"
-    local subdomain="$2"
-    
-    # Use dig to get DNS information and parse with awk
-    local result=$(dig "${subdomain}.${domain}" | awk '/ANSWER SECTION:/{getline; print}')
-    
-    if [[ -n "$result" ]]; then
-        local record_type=$(echo "$result" | awk '{print $4}')
-        local destination=$(echo "$result" | awk '{print $5}')
-        echo "The subdomain $subdomain is a $record_type record and points to $destination"
-    fi
+domain_information () {
+    line=$(dig "$2"."$1" | grep -A1 'ANSWER SECTION:' | tr '\t' '\n' | tail -2 | tr '\n' ' ')
+    echo "$2 $line" | awk '{print "The subdomain " $1 " is a " $2 " record and points to " $3}'
 }
 
-# Main function
-main() {
-    local domain="$1"
-    local subdomain="$2"
-    
-    # If subdomain is specified, show only that subdomain
-    if [[ -n "$subdomain" ]]; then
-        get_subdomain_info "$domain" "$subdomain"
-    else
-        # Show default subdomains in specified order
-        local subdomains=("www" "lb-01" "web-01" "web-02")
-        for sub in "${subdomains[@]}"; do
-            get_subdomain_info "$domain" "$sub"
-        done
-    fi
-}
-
-# Call main function with all arguments
-main "$@"
+if [ "$#" == 1 ]
+then
+  domain_information "$1" "www"
+  domain_information "$1" "lb-01"
+  domain_information "$1" "web-01"
+  domain_information "$1" "web-02"
+elif [ "$#" == 2 ]
+then
+  domain_information "$1" "$2"
+fi
